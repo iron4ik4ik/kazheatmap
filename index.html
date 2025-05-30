@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KazHeatMap</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+        header p {
+            margin: 0.5em 0 0;
+            font-size: 1em;
+        }
+        #map {
+            height: 70vh;
+            width: 100%;
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+        #info {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: none;
+            text-align: left;
+        }
+        #info h2 {
+            margin: 0 0 10px;
+            color: #2c3e50;
+        }
+        #info p {
+            margin: 5px 0;
+        }
+        @media (max-width: 600px) {
+            #map {
+                height: 50vh;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+            #info {
+                margin: 10px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Карта Казахстана</h1>
+        <p>Кликните на город, чтобы увидеть статистику тепловых сетей</p>
+    </header>
+    <div id="map"></div>
+    <div id="info"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Инициализация карты
+        const map = L.map('map').setView([48.019573, 66.923684], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // Данные о городах
+        const cities = {
+            "Aktobe": {
+                lat: 50.283933,
+                lng: 57.166977,
+                company: "АО 'Aqtobe su-energy group'",
+                totalLength: "262.6 км",
+                mainLines: "45.5 км",
+                distributionLines: "217.1 км"
+            },
+            "Taldykorgan": {
+                lat: 45.015687,
+                lng: 78.373734,
+                company: "КГП 'Талдыкоргантеплосервис'",
+                totalLength: "179.3 км",
+                mainLines: "47.3352 км",
+                distributionLines: "131.923 км"
+            },
+            "Kokshetau": {
+                lat: 53.283333,
+                lng: 69.383333,
+                company: "ГКП на ПХВ 'Кокшетау Жылу'",
+                totalLength: "186.646 км",
+                mainLines: "48.892 км",
+                distributionLines: "137.754 км"
+            },
+            "Almaty": {
+                lat: 43.222015,
+                lng: 76.851248,
+                company: "ТОО 'Алматинские тепловые сети'",
+                totalLength: "1284.15 км",
+                mainLines: "289.259 км",
+                distributionLines: "994.887 км"
+            },
+            "Atyrau": {
+                lat: 47.116531,
+                lng: 51.923610,
+                company: "АО 'Атырауские тепловые сети'",
+                totalLength: "213.35 км",
+                mainLines: "62.133 км",
+                distributionLines: "151.217 км"
+            },
+            "Taraz": {
+                lat: 42.900000,
+                lng: 71.366667,
+                company: "ГКП 'Таразтрансэнерго'",
+                totalLength: "188.848 км",
+                mainLines: "39.289 км",
+                distributionLines: "149.559 км"
+            },
+            "Uralsk": {
+                lat: 51.233333,
+                lng: 51.366667,
+                company: "АО 'Жайыктеплоэнерго'",
+                totalLength: "396.5 км",
+                mainLines: "219.7 км",
+                distributionLines: "176.8 км"
+            },
+            "Zhezkazgan": {
+                lat: 47.783333,
+                lng: 67.700000,
+                company: "АО 'Предприятие тепловодоснабжения'",
+                totalLength: "398.022 км",
+                mainLines: "60.3 км",
+                distributionLines: "337.722 км"
+            },
+            "Karaganda": {
+                lat: 49.804683,
+                lng: 73.109382,
+                company: "ТОО 'Теплотранзит Караганда'",
+                totalLength: "448.1 км",
+                mainLines: "110.5 км",
+                distributionLines: "337.6 км"
+            },
+            "Kostanay": {
+                lat: 53.214350,
+                lng: 63.624607,
+                company: "ГКП Костанайская теплоэнергетическая",
+                totalLength: "245.119 км",
+                mainLines: "38.28 км",
+                distributionLines: "206.839 км"
+            },
+            "Kyzylorda": {
+                lat: 44.848831,
+                lng: 65.482268,
+                company: "ГКП 'Кызылордатеплоэлектроцентр'",
+                totalLength: "369.6 км",
+                mainLines: "70.2 км",
+                distributionLines: "299.4 км"
+            },
+            "Aktau_1": {
+                lat: 43.650000,
+                lng: 51.150000,
+                company: "ТОО 'МАЭК-Казатомпром'",
+                totalLength: "23.422 км",
+                mainLines: "23.422 км",
+                distributionLines: "0 км"
+            },
+            "Aktau_2": {
+                lat: 43.650000,
+                lng: 51.150000,
+                company: "ГКП 'Каспий жылу, су арнасы'",
+                totalLength: "464.4 км",
+                mainLines: "286.07 км",
+                distributionLines: "178.83 км"
+            },
+            "Astana": {
+                lat: 51.169392,
+                lng: 71.449074,
+                company: "АО 'Астана-Теплотранзит'",
+                totalLength: "867.4 км",
+                mainLines: "270.044 км",
+                distributionLines: "597.357 км"
+            },
+            "Pavlodar": {
+                lat: 52.287303,
+                lng: 76.953897,
+                company: "ТОО 'Павлодарские тепловые сети'",
+                totalLength: "411.45 км",
+                mainLines: "114.09 км",
+                distributionLines: "297.36 км"
+            },
+            "Petropavlovsk": {
+                lat: 54.875299,
+                lng: 69.162742,
+                company: "ТОО 'Петропавловские Тепловые Сети'",
+                totalLength: "230.77 км",
+                mainLines: "161.539 км",
+                distributionLines: "69.231 км"
+            },
+            "Turkestan": {
+                lat: 43.297333,
+                lng: 68.251806,
+                company: "ГКП 'Жылу'",
+                totalLength: "13.43 км",
+                mainLines: "3.69 км",
+                distributionLines: "9.74 км"
+            },
+            "Shymkent": {
+                lat: 42.341685,
+                lng: 69.590101,
+                company: "ГКП 'Куатжылуорталык-3'",
+                totalLength: "800.442 км",
+                mainLines: "128.6 км",
+                distributionLines: "671.842 км"
+            },
+            "Ust-Kamenogorsk": {
+                lat: 49.948110,
+                lng: 82.623051,
+                company: "АО 'Усть-Каменогорские тепловые сети'",
+                totalLength: "441.6 км",
+                mainLines: "105.4 км",
+                distributionLines: "336.2 км"
+            },
+            "Semey": {
+                lat: 50.411111,
+                lng: 80.227500,
+                company: "ГКП 'Теплокоммунэнерго'",
+                totalLength: "313.9937 км",
+                mainLines: "44.2437 км",
+                distributionLines: "269.75 км"
+            }
+        };
+
+        // Добавление маркеров
+        for (const city in cities) {
+            const marker = L.marker([cities[city].lat, cities[city].lng]).addTo(map);
+            marker.on('click', () => {
+                const infoDiv = document.getElementById('info');
+                infoDiv.style.display = 'block';
+                infoDiv.innerHTML = `
+                    <h2>${city.replace('_1', '').replace('_2', '')}</h2>
+                    <p><strong>Компания:</strong> ${cities[city].company}</p>
+                    <p><strong>Общая протяженность сетей:</strong> ${cities[city].totalLength}</p>
+                    <p><strong>Магистральные сети:</strong> ${cities[city].mainLines}</p>
+                    <p><strong>Распределительные сети:</strong> ${cities[city].distributionLines}</p>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>

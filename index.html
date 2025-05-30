@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KazHeatMap</title>
+    <title>KazHeatMap - Карта тепловых сетей Казахстана</title>
+    <meta name="description" content="KazHeatMap - интерактивная карта тепловых сетей Казахстана. Узнайте статистику теплоснабжения по городам: Астана, Алматы, Шымкент и другие.">
+    <meta name="keywords" content="KazHeatMap, тепловые сети, Казахстан, карта, теплоснабжение, Астана, Алматы, Шымкент">
+    <meta name="author" content="iron4ik4">
+    <!-- Open Graph для соцсетей -->
+    <meta property="og:title" content="KazHeatMap - Карта тепловых сетей Казахстана">
+    <meta property="og:description" content="Интерактивная карта тепловых сетей Казахстана. Узнайте данные о теплоснабжении городов.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://iron4ik4.github.io/kazheatmap">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body {
@@ -49,6 +57,11 @@
         }
         #info p {
             margin: 5px 0;
+            line-height: 1.5;
+        }
+        #info .label {
+            font-weight: bold;
+            color: #2c3e50;
         }
         @media (max-width: 600px) {
             #map {
@@ -66,10 +79,10 @@
 </head>
 <body>
     <header>
-        <h1>Карта Казахстана</h1>
-        <p>Кликните на город, чтобы увидеть статистику тепловых сетей</p>
+        <h1>KazHeatMap - Карта тепловых сетей Казахстана</h1>
+        <p>Кликните на город, чтобы узнать статистику теплоснабжения</p>
     </header>
-    <div id="map"></div>
+    <div id="map" aria-label="Интерактивная карта тепловых сетей Казахстана"></div>
     <div id="info"></div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
@@ -251,10 +264,10 @@
                 infoDiv.style.display = 'block';
                 infoDiv.innerHTML = `
                     <h2>${city.replace('_1', '').replace('_2', '')}</h2>
-                    <p><strong>Компания:</strong> ${cities[city].company}</p>
-                    <p><strong>Общая протяженность сетей:</strong> ${cities[city].totalLength}</p>
-                    <p><strong>Магистральные сети:</strong> ${cities[city].mainLines}</p>
-                    <p><strong>Распределительные сети:</strong> ${cities[city].distributionLines}</p>
+                    <p><span class="label">Компания:</span> ${cities[city].company}</p>
+                    <p><span class="label">Общая протяженность сетей:</span> ${cities[city].totalLength}</p>
+                    <p><span class="label">Магистральные сети:</span> ${cities[city].mainLines}</p>
+                    <p><span class="label">Распределительные сети:</span> ${cities[city].distributionLines}</p>
                 `;
             });
         }
